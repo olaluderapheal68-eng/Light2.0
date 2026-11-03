@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Light — connect, share and build communities.">
+  <title>Light — Connect with everyone</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="auth-links">
+    <a href="login.html" data-auth="guest">Sign in</a>
+<a href="sign-up.html" data-auth="guest">Create account</a>
+<a href="profile.html" data-auth="user">Profile</a>
+</div>
+</div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Light home">
+      <span class="brand-mark">L</span>
+      <span>Light</span>
+    </a>
+    <label class="search">
+      <span aria-hidden="true">⌕</span>
+      <input id="searchInput" type="search" placeholder="Search Light">
+    </label>
+    <button class="avatar" aria-label="Open your profile">R</button>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="section-label">MENU</p>
+      <nav>
+        <a class="nav-link active" href="home.html">⌂ <span>Home</span></a>
+        <a class="nav-link" href="explore.html">⌕ <span>Explore</span></a>
+        <a class="nav-link" href="communities.html">◎ <span>Communities</span></a>
+        <a class="nav-link" href="messages.html">✉ <span>Messages</span></a>
+        <a class="nav-link" href="notifications.html">♧ <span>Notifications</span></a>
+        <a class="nav-link" href="profile.html">♙ <span>Profile</span></a>
+      </nav>
+      <button class="primary-button" id="sidebarPost">Create post</button>
+    </aside>
+
+    <main id="home" class="feed">
+      <div class="feed-heading">
+        <div>
+          <p class="eyebrow">YOUR SPACE</p>
+          <h1>Home</h1>
+        </div>
+        <span class="online-dot">● You're connected</span>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Feed type">
+        <button class="tab active" data-feed="for-you" role="tab"
+          aria-selected="true">For you</button>
+        <button class="tab" data-feed="following" role="tab"
+          aria-selected="false">Following</button>
+      </div>
+
+      <form class="composer" id="postForm">
+        <div class="composer-avatar">R</div>
+        <div class="composer-content">
+          <textarea id="postText" maxlength="280"
+            placeholder="What's happening in your world?"
+            aria-label="Write a post" required></textarea>
+          <div class="composer-footer">
+            <span id="charCount">0 / 280</span>
+            <button class="primary-button" type="submit">Post</button>
+          </div>
+        </div>
+      </form>
+
+      <section id="postList" class="post-list" aria-live="polite">
+        <article class="post">
+          <div class="post-avatar">L</div>
+          <div class="post-body">
+            <div class="post-meta">
+              <strong>Light Team</strong>
+              <span>@light · Welcome</span>
+            </div>
+            <p>Welcome to Light — a place to share ideas, discover
+              communities and connect with people who inspire you.</p>
+            <div class="post-actions">
+              <button type="button" disabled>♡ Like</button>
+              <button type="button" disabled>◯ Reply</button>
+              <button type="button" disabled>↗ Share</button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <aside class="right-panel">
+      <section class="panel-card">
+        <p class="eyebrow">DISCOVER</p>
+        <h2>What's happening</h2>
+        <div class="trend">
+          <span>COMMUNITY</span>
+          <strong>Build in public</strong>
+          <small>Share your progress and learn together.</small>
+        </div>
+        <div class="trend">
+          <span>CREATORS</span>
+          <strong>Ideas worth sharing</strong>
+          <small>Discover different perspectives.</small>
+        </div>
+      </section>
+
+      <section class="panel-card">
+        <p class="eyebrow">OUR PURPOSE</p>
+        <h2>More than a feed.</h2>
+        <p class="muted">Light is being built to make communication,
+          communities and creative expression feel connected.</p>
+      </section>
+    </aside>
+  </div>
+
+  <footer>
+    Light · Built for meaningful connections
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+ <script src="auth-guard.js"></script>
+<script src="navigation-auth.js"></script>
+
+
+</body>
+</html>

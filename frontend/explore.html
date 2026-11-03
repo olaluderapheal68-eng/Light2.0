@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore | Light</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="explore.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <aside class="sidebar">
+      <a href="home.html" class="logo">L</a>
+
+      <nav class="main-nav">
+        <a href="home.html">⌂ <span>Home</span></a>
+        <a href="explore.html" class="active">⌕ <span>Explore</span></a>
+        <a href="notifications.html">♧ <span>Notifications</span></a>
+        <a href="messages.html">✉ <span>Messages</span></a>
+        <a href="communities.html">♧ <span>Communities</span></a>
+        <a href="profile.html">♙ <span>Profile</span></a>
+      </nav>
+    </aside>
+
+    <main class="explore-main">
+      <header class="explore-header">
+        <h1>Explore</h1>
+        <p>Discover people, conversations and ideas on Light.</p>
+      </header>
+
+      <section class="explore-search">
+        <input
+          type="search"
+          id="exploreSearch"
+          placeholder="Search people by username..."
+          autocomplete="off"
+        >
+        <button id="searchButton" type="button">Search</button>
+      </section>
+
+      <section class="explore-section">
+        <h2>Discover people</h2>
+        <div id="peopleResults" class="people-grid">
+          <p class="explore-message">Search for people to discover them.</p>
+        </div>
+      </section>
+
+      <section class="explore-section">
+        <h2>Discover posts</h2>
+        <div id="postResults">
+          <p class="explore-message">Loading public posts...</p>
+        </div>
+      </section>
+    </main>
+
+    <aside class="explore-right">
+      <section class="trending-panel">
+        <h2>What's happening</h2>
+        <p>Trending topics will appear here as the community grows.</p>
+      </section>
+    </aside>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="explore.js"></script>
+</body>
+</html>

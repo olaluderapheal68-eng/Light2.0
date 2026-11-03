@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversation | Light</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="post.css">
+</head>
+
+<body>
+  <div class="conversation-layout">
+
+    <!-- LEFT NAVIGATION -->
+    <aside class="conversation-sidebar">
+      <a href="home.html" class="conversation-logo">L</a>
+
+      <nav class="conversation-navigation">
+        <a href="home.html">Home</a>
+        <a href="explore.html">Explore</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="messages.html">Messages</a>
+        <a href="communities.html">Communities</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+    </aside>
+
+    <!-- CONVERSATION CONTENT -->
+    <main class="conversation-page">
+
+      <header class="conversation-header">
+        <a href="home.html" class="conversation-back">←</a>
+        <div>
+          <h2>Post</h2>
+          <p>Conversation</p>
+        </div>
+      </header>
+
+      <!-- ORIGINAL POST -->
+      <section id="originalPost" class="original-post">
+        <p>Loading post...</p>
+      </section>
+
+      <!-- REPLY COMPOSER -->
+      <section class="reply-composer">
+        <h3>Reply to this conversation</h3>
+
+        <form id="replyForm">
+          <textarea
+            id="replyContent"
+            placeholder="Post your reply"
+            rows="4"
+            required
+          ></textarea>
+
+          <div class="reply-composer-footer">
+            <span>Share your thoughts with the community.</span>
+
+            <button type="submit" id="replySubmit">
+              Reply
+            </button>
+          </div>
+        </form>
+
+        <p id="replyMessage"></p>
+      </section>
+
+      <!-- REPLIES -->
+      <section class="replies-section">
+        <h3>Replies</h3>
+
+        <div id="replyList">
+          <p>Loading replies...</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="conversation-right-sidebar">
+      <section class="conversation-sidebar-card">
+        <h3>Join the conversation</h3>
+        <p>Share ideas, respond to posts and connect with people on Light.</p>
+      </section>
+
+      <section class="conversation-sidebar-card">
+        <h3>Be respectful</h3>
+        <p>Keep conversations constructive and welcoming to everyone.</p>
+      </section>
+    </aside>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="post.js"></script>
+</body>
+</html>

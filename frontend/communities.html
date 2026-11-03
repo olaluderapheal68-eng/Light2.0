@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communities | Light</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="communities.css">
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <a href="home.html" class="logo">L</a>
+
+      <nav class="main-navigation">
+        <a href="home.html">Home</a>
+        <a href="explore.html">Explore</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="messages.html">Messages</a>
+        <a href="communities.html" class="active">Communities</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+
+      <button id="createCommunityButton" class="post-button">
+        Create Community
+      </button>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="communities-main">
+
+      <header class="communities-header">
+        <h1>Communities</h1>
+        <p>Connect with people who share your interests.</p>
+      </header>
+
+      <!-- SEARCH -->
+      <div class="community-search">
+        <input
+          type="search"
+          id="communitySearch"
+          placeholder="Search communities"
+          aria-label="Search communities"
+        >
+      </div>
+
+      <!-- TABS -->
+      <nav class="community-tabs">
+        <button class="community-tab active" data-tab="discover">
+          Discover
+        </button>
+        <button class="community-tab" data-tab="joined">
+          Your Communities
+        </button>
+      </nav>
+
+      <!-- CATEGORY FILTERS -->
+      <div class="community-categories" id="communityCategories">
+        <button class="category-button active" data-category="All">All</button>
+        <button class="category-button" data-category="Technology">Technology</button>
+        <button class="category-button" data-category="Education">Education</button>
+        <button class="category-button" data-category="Business">Business</button>
+        <button class="category-button" data-category="Sports">Sports</button>
+        <button class="category-button" data-category="Entertainment">Entertainment</button>
+      </div>
+
+      <!-- COMMUNITY LIST -->
+      <section id="communityList" class="community-list">
+        <p>Loading communities...</p>
+      </section>
+
+      <!-- CREATE COMMUNITY MODAL -->
+      <div id="createCommunityModal" class="community-modal" hidden>
+        <div class="community-modal-content">
+
+          <button
+            type="button"
+            id="closeCommunityModal"
+            aria-label="Close"
+          >✕</button>
+
+          <h2>Create a Community</h2>
+
+          <form id="createCommunityForm">
+
+            <label for="communityName">Community name</label>
+            <input
+              id="communityName"
+              type="text"
+              maxlength="60"
+              required
+              placeholder="Enter a community name"
+            >
+
+            <label for="communityDescription">Description</label>
+            <textarea
+              id="communityDescription"
+              maxlength="300"
+              required
+              placeholder="What is your community about?"
+            ></textarea>
+
+            <label for="communityCategory">Category</label>
+            <select id="communityCategory" required>
+              <option value="">Choose a category</option>
+              <option value="Technology">Technology</option>
+              <option value="Education">Education</option>
+              <option value="Business">Business</option>
+              <option value="Sports">Sports</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <label for="communityPrivacy">Privacy</label>
+            <select id="communityPrivacy" required>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+
+            <button type="submit" id="submitCommunityButton">
+              Create Community
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="community-right-sidebar">
+
+      <section class="community-sidebar-card">
+        <h3>Discover communities</h3>
+        <p>Find spaces built around the things you care about.</p>
+      </section>
+
+      <section class="community-sidebar-card">
+        <h3>Community categories</h3>
+        <p>Technology · Education · Business · Sports · Entertainment</p>
+      </section>
+
+      <section class="community-sidebar-card">
+        <h3>About Light Communities</h3>
+        <p>
+          Communities bring people together around shared interests.
+          Discover conversations and connect with people who share yours.
+        </p>
+      </section>
+
+    </aside>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="communities.js"></script>
+</body>
+</html>

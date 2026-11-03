@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages | Light</title>
+  <link rel="stylesheet" href="messages.css">
+</head>
+<body>
+  <div class="messages-layout">
+
+    <aside class="sidebar">
+      <a href="home.html" class="logo">L</a>
+      <nav>
+        <a href="home.html">Home</a>
+        <a href="explore.html">Explore</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="messages.html" class="active">Messages</a>
+        <a href="communities.html">Communities</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+    </aside>
+
+    <main class="messages-container">
+      <section class="conversation-list">
+        <header class="messages-header">
+          <h1>Messages</h1>
+          <button id="newMessageBtn" type="button">＋</button>
+        </header>
+
+        <input
+          type="search"
+          id="conversationSearch"
+          placeholder="Search messages"
+        >
+
+        <div id="conversationList">
+          <p class="empty-state">Your conversations will appear here.</p>
+        </div>
+      </section>
+
+      <section class="chat-panel">
+        <div id="chatEmptyState" class="chat-empty">
+          <h2>Your messages</h2>
+          <p>Select a conversation to start chatting.</p>
+        </div>
+
+        <div id="chatContent" class="chat-content" hidden>
+          <header id="chatHeader" class="chat-header"></header>
+          <div id="messageList" class="message-list"></div>
+
+          <form id="messageForm" class="message-form">
+            <input
+              type="text"
+              id="messageInput"
+              placeholder="Write a message..."
+              autocomplete="off"
+              required
+            >
+            <button type="submit">Send</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="messages.js"></script>
+</body>
+</html>

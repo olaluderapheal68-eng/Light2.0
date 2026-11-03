@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | Light</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="profile.css">
+</head>
+
+<body class="light-profile-page">
+
+  <div class="profile-layout">
+
+    <!-- LEFT NAVIGATION -->
+    <aside class="profile-sidebar">
+      <a href="home.html" class="light-logo">L</a>
+
+      <nav>
+        <a href="home.html">⌂ <span>Home</span></a>
+        <a href="communities.html">♧ <span>Communities</span></a>
+        <a href="home.html">✉ <span>Messages</span></a>
+        <a href="profile.html" class="active">♙ <span>Profile</span></a>
+      </nav>
+
+      <a href="home.html" class="sidebar-post-button">Back to Feed</a>
+    </aside>
+
+    <!-- MAIN PROFILE CONTENT -->
+    <main class="profile-main">
+
+      <header class="profile-topbar">
+        <a href="home.html">←</a>
+        <div>
+          <h2 id="profileHeading">Profile</h2>
+          <span>Light account</span>
+        </div>
+      </header>
+
+      <section id="profileMessage" class="profile-message">
+        Loading your profile...
+      </section>
+
+      <div id="profileDetails" hidden>
+
+        <!-- COVER PHOTO -->
+        <section class="profile-cover">
+          <div class="cover-placeholder"></div>
+        </section>
+
+        <!-- PROFILE IDENTITY -->
+        <section class="profile-identity">
+
+          <div class="profile-avatar">
+            <span id="profileInitial">L</span>
+          </div>
+
+          <div class="profile-actions">
+  <button
+    type="button"
+    class="edit-profile-button"
+    id="editProfileButton"
+  >
+    Edit profile
+  </button>
+
+  <button
+    type="button"
+    class="message-profile-button"
+    id="messageProfileButton"
+    hidden
+  >
+    Message
+  </button>
+</div>
+
+          <div class="profile-user-info">
+            <h2 id="profileDisplayName">Light User</h2>
+            <p id="profileUsername">@lightuser</p>
+          </div>
+
+          <p class="profile-bio" id="profileBio">
+            Welcome to Light.
+          </p>
+
+          <div class="profile-extra-info">
+            <span id="profileCountry"></span>
+            <span id="profileCreatedAt"></span>
+          </div>
+
+          <div class="profile-stats">
+            <a href="#following"><strong id="profileFollowing">0</strong> Following</a>
+            <a href="#followers"><strong id="profileFollowers">0</strong> Followers</a>
+          </div>
+
+        </section>
+
+        <!-- PROFILE TABS -->
+        <nav class="profile-tabs">
+          <button class="active" type="button">Posts</button>
+          <button type="button">Replies</button>
+          <button type="button">Media</button>
+          <button type="button">Likes</button>
+        </nav>
+
+        <!-- USER POSTS -->
+        <section id="profilePosts" class="profile-posts">
+          <p>Your posts will appear here.</p>
+        </section>
+
+        <!-- EXISTING ACCOUNT DETAILS -->
+        <details class="account-details" id="accountDetails">
+          <summary>Account information</summary>
+
+          <p>First name: <span id="profileFirstName"></span></p>
+          <p>Last name: <span id="profileLastName"></span></p>
+          <p>Email: <span id="profileEmail"></span></p>
+          <p>Phone: <span id="profilePhone"></span></p>
+        </details>
+
+      </div>
+
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="profile-right-sidebar">
+      <div class="profile-search">
+        <input type="search" placeholder="Search Light">
+      </div>
+
+      <section class="profile-trends">
+        <h3>What's happening</h3>
+        <p>Discover conversations happening on Light.</p>
+      </section>
+
+      <section class="profile-trends">
+        <h3>Join the community</h3>
+        <p>Connect with people who share your interests.</p>
+        <a href="communities.html">Explore Communities →</a>
+      </section>
+    </aside>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="profile.js"></script>
+
+</body>
+</html>

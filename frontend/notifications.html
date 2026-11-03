@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications | Light</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="notifications.css">
+</head>
+
+<body>
+  <div class="notifications-layout">
+
+    <aside class="notifications-sidebar">
+      <a href="home.html" class="notifications-logo">L</a>
+
+      <nav class="notifications-navigation">
+        <a href="home.html">Home</a>
+        <a href="explore.html">Explore</a>
+        <a href="notifications.html" class="active">Notifications</a>
+        <a href="messages.html">Messages</a>
+        <a href="communities.html">Communities</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+    </aside>
+
+    <main class="notifications-main">
+
+      <header class="notifications-header">
+        <h2>Notifications</h2>
+      </header>
+
+      <nav class="notification-tabs">
+        <button class="notification-tab active" data-filter="all">All</button>
+        <button class="notification-tab" data-filter="mentions">Mentions</button>
+        <button class="notification-tab" data-filter="likes">Likes</button>
+        <button class="notification-tab" data-filter="replies">Replies</button>
+        <button class="notification-tab" data-filter="follows">Follows</button>
+      </nav>
+
+      <div class="notification-actions">
+        <span id="notificationCount">Loading notifications...</span>
+        <button id="markAllRead">Mark all as read</button>
+      </div>
+
+      <section id="notificationList">
+        <p class="notification-empty">Loading your notifications...</p>
+      </section>
+
+    </main>
+
+    <aside class="notifications-right-sidebar">
+      <section class="notification-info-card">
+        <h3>Stay connected</h3>
+        <p>See what's happening with your posts, communities and connections.</p>
+      </section>
+    </aside>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="notifications.js"></script>
+</body>
+</html>
