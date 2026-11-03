@@ -19,11 +19,17 @@ signupForm.addEventListener("submit", async (event) => {
   }
 
   if (!window.lightSupabase) {
-    signupMessage.textContent = "Authentication is not available. Refresh and try again.";
+    signupMessage.textContent =
+      "Authentication is not available. Refresh and try again.";
     return;
   }
 
   signupMessage.textContent = "Creating your account...";
+
+  const emailRedirectTo = new URL(
+    "home.html",
+    window.location.href
+  ).href;
 
   const { data, error } = await window.lightSupabase.auth.signUp({
     email,
@@ -35,7 +41,7 @@ signupForm.addEventListener("submit", async (event) => {
         phone_number: phoneNumber,
         country: country
       },
-     emailRedirectTo: "http://127.0.0.1:3000/Light/frontend/home.html"
+      emailRedirectTo
     }
   });
 
@@ -45,9 +51,13 @@ signupForm.addEventListener("submit", async (event) => {
   }
 
   if (data.session) {
-    signupMessage.textContent = "Account created! Taking you to Light...";
+    signupMessage.textContent =
+      "Account created! Taking you to Light...";
 
-    window.location.href = "home.html";
+    window.location.href = new URL(
+      "home.html",
+      window.location.href
+    ).href;
   } else {
     signupMessage.textContent =
       "Account created! Please confirm your email before signing in.";

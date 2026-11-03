@@ -6,7 +6,7 @@ const replyContent = document.querySelector("#replyContent");
 const replyMessage = document.querySelector("#replyMessage");
 const replySubmit = document.querySelector("#replySubmit");
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://light2-0.onrender.com";
 
 async function getAccessToken() {
   const { data, error } =

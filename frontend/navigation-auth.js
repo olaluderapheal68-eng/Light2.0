@@ -1,5 +1,10 @@
 
 async function updateLightNavigation() {
+  if (!window.lightSupabase) {
+    console.error("Light authentication is not initialized.");
+    return;
+  }
+
   const { data, error } =
     await window.lightSupabase.auth.getSession();
 
@@ -19,8 +24,10 @@ async function updateLightNavigation() {
   });
 }
 
-updateLightNavigation();
-
-window.lightSupabase.auth.onAuthStateChange(() => {
+if (window.lightSupabase) {
   updateLightNavigation();
-});
+
+  window.lightSupabase.auth.onAuthStateChange(() => {
+    updateLightNavigation();
+  });
+}

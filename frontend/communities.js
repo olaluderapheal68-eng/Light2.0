@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://light2-0.onrender.com";
 
 const communityList = document.querySelector("#communityList");
 const communitySearch = document.querySelector("#communitySearch");
