@@ -58,18 +58,68 @@
           aria-selected="false">Following</button>
       </div>
 
-      <form class="composer" id="postForm">
-        <div class="composer-avatar">R</div>
-        <div class="composer-content">
-          <textarea id="postText" maxlength="280"
-            placeholder="What's happening in your world?"
-            aria-label="Write a post" required></textarea>
-          <div class="composer-footer">
-            <span id="charCount">0 / 280</span>
-            <button class="primary-button" type="submit">Post</button>
-          </div>
-        </div>
-      </form>
+     
+<form class="composer" id="postForm">
+  <div class="composer-avatar">R</div>
+
+  <div class="composer-content">
+    <textarea
+      id="postText"
+      maxlength="280"
+      placeholder="What's happening in your world?"
+      aria-label="Write a post"
+    ></textarea>
+
+    <div id="emojiPicker" class="emoji-picker" hidden>
+      <button type="button" class="emoji-option">😀</button>
+      <button type="button" class="emoji-option">😂</button>
+      <button type="button" class="emoji-option">😍</button>
+      <button type="button" class="emoji-option">🥰</button>
+      <button type="button" class="emoji-option">🔥</button>
+      <button type="button" class="emoji-option">❤️</button>
+      <button type="button" class="emoji-option">👍</button>
+      <button type="button" class="emoji-option">🎉</button>
+      <button type="button" class="emoji-option">👏</button>
+      <button type="button" class="emoji-option">🚀</button>
+      <button type="button" class="emoji-option">🙏</button>
+      <button type="button" class="emoji-option">💯</button>
+    </div>
+
+    <div id="attachmentPreview" class="attachment-preview"></div>
+
+    <div class="composer-footer">
+      <div class="composer-tools">
+        <label for="imageInput" title="Add image">🖼️</label>
+        <input
+          type="file"
+          id="imageInput"
+          accept="image/*"
+          multiple
+          hidden
+        >
+
+        <label for="fileInput" title="Attach document">📎</label>
+        <input
+          type="file"
+          id="fileInput"
+          accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx"
+          multiple
+          hidden
+        >
+
+        <button type="button" id="emojiButton" title="Add emoji">
+          😀
+        </button>
+      </div>
+
+      <div class="composer-submit">
+        <span id="charCount">0 / 280</span>
+        <button class="primary-button" type="submit">Post</button>
+      </div>
+    </div>
+  </div>
+</form>
+
 
       <section id="postList" class="post-list" aria-live="polite">
         <article class="post">

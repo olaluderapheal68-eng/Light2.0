@@ -36,7 +36,7 @@ const supabase = createClient(
 );
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 // ==========================================
 // AUTHENTICATION
@@ -124,9 +124,9 @@ async function createNotification({
   }
 }
 
-// ==========================================
+
 // HOME AND HEALTH
-// ==========================================
+
 
 app.get("/", (req, res) => {
   res.json({
@@ -144,8 +144,81 @@ app.get("/health", (req, res) => {
 });
 
 // ==========================================
-// POSTS
+// POST ATTACHMENT UPLOAD
 // ==========================================
+
+app.post("/api/attachments/upload-url", requireAuth, async (req, res) => {
+  try {
+    const { file_name, mime_type } = req.body;
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "application/pdf",
+      "text/plain",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-powerpoint",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ];
+
+    if (
+      typeof file_name !== "string" ||
+      !file_name.trim() ||
+      typeof mime_type !== "string" ||
+      !allowedTypes.includes(mime_type)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Unsupported file type or invalid filename",
+      });
+    }
+
+    const userSupabase = getUserSupabase(req.accessToken);
+
+    const safeName = file_name
+      .trim()
+      .replace(/[^a-zA-Z0-9._-]/g, "_")
+      .slice(0, 100);
+
+    const filePath = `${req.user.id}/${Date.now()}-${safeName}`;
+
+    const { data, error } = await userSupabase.storage
+      .from("post-attachments")
+      .createSignedUploadUrl(filePath);
+
+    if (error) {
+      console.error("Create upload URL error:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Unable to prepare file upload",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        path: data.path,
+        token: data.token,
+        file_name: safeName,
+        mime_type,
+      },
+    });
+  } catch (error) {
+    console.error("Attachment upload preparation error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to prepare file upload",
+    });
+  }
+});
+
+// POSTS
+
 
 // GET TOP-LEVEL POSTS
 app.get("/api/posts", requireAuth, async (req, res) => {
@@ -182,21 +255,42 @@ app.get("/api/posts", requireAuth, async (req, res) => {
 });
 
 // CREATE A POST OR REPLY
+// CREATE A POST OR REPLY WITH ATTACHMENTS
 app.post("/api/posts", requireAuth, async (req, res) => {
   try {
-    const { content } = req.body;
+    const { content, attachments = [] } = req.body;
     const rawReplyId = req.body.reply_to_id;
 
-    // posts.id is int8 in the database.
     const reply_to_id =
       rawReplyId === undefined || rawReplyId === null || rawReplyId === ""
         ? null
         : Number(rawReplyId);
 
-    if (typeof content !== "string" || !content.trim()) {
+    if (typeof content !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Post content is required",
+        message: "Invalid post content",
+      });
+    }
+
+    if (!Array.isArray(attachments) || attachments.length > 4) {
+      return res.status(400).json({
+        success: false,
+        message: "A post can contain up to 4 attachments",
+      });
+    }
+
+    if (!content.trim() && attachments.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Write something or attach a file",
+      });
+    }
+
+    if (content.length > 280) {
+      return res.status(400).json({
+        success: false,
+        message: "Post content cannot exceed 280 characters",
       });
     }
 
@@ -210,10 +304,27 @@ app.post("/api/posts", requireAuth, async (req, res) => {
       });
     }
 
+    // Validate attachment metadata and ensure every file belongs to this user.
+    for (const attachment of attachments) {
+      if (
+        !attachment ||
+        typeof attachment.path !== "string" ||
+        typeof attachment.file_name !== "string" ||
+        typeof attachment.mime_type !== "string" ||
+        !Number.isSafeInteger(attachment.file_size) ||
+        attachment.file_size <= 0 ||
+        !attachment.path.startsWith(`${req.user.id}/`)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid attachment information",
+        });
+      }
+    }
+
     const userSupabase = getUserSupabase(req.accessToken);
     let originalPost = null;
 
-    // Verify original post before creating a reply.
     if (reply_to_id !== null) {
       const { data, error: parentError } = await userSupabase
         .from("posts")
@@ -222,8 +333,6 @@ app.post("/api/posts", requireAuth, async (req, res) => {
         .maybeSingle();
 
       if (parentError || !data) {
-        console.error("Original post lookup error:", parentError?.message);
-
         return res.status(404).json({
           success: false,
           message: "Original post not found or unavailable",
@@ -239,20 +348,19 @@ app.post("/api/posts", requireAuth, async (req, res) => {
         content: content.trim(),
         user_id: req.user.id,
         reply_to_id,
+        attachments,
       })
       .select()
       .single();
 
     if (error) {
       console.error("Create post error:", error.message);
-
       return res.status(500).json({
         success: false,
         message: "Unable to create post",
       });
     }
 
-    // Notify the author of the original post.
     if (originalPost) {
       await createNotification({
         recipientId: originalPost.user_id,
@@ -265,14 +373,11 @@ app.post("/api/posts", requireAuth, async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: reply_to_id !== null
-        ? "Reply created successfully"
-        : "Post created successfully",
+      message: "Post created successfully",
       data,
     });
   } catch (error) {
     console.error("Unexpected create post error:", error.message);
-
     return res.status(500).json({
       success: false,
       message: "Unable to create post",
@@ -280,9 +385,8 @@ app.post("/api/posts", requireAuth, async (req, res) => {
   }
 });
 
-// ==========================================
 // FOLLOW REQUESTS
-// ==========================================
+
 
 app.post("/api/follows/:id/respond", requireAuth, async (req, res) => {
   try {
@@ -345,9 +449,9 @@ app.post("/api/follows/:id/respond", requireAuth, async (req, res) => {
   }
 });
 
-// ==========================================
+
 // POST LIKES
-// ==========================================
+
 
 // GET LIKES FOR A POST
 app.get("/api/posts/:id/likes", requireAuth, async (req, res) => {
@@ -507,6 +611,179 @@ app.delete("/api/posts/:id/likes", requireAuth, async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Unable to unlike post",
+    });
+  }
+});
+
+// ==========================================
+// POST EMOJI REACTIONS
+// ==========================================
+
+// GET REACTIONS FOR A POST
+app.get("/api/posts/:id/reactions", requireAuth, async (req, res) => {
+  try {
+    const postId = Number(req.params.id);
+
+    if (!Number.isSafeInteger(postId) || postId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid post ID",
+      });
+    }
+
+    const userSupabase = getUserSupabase(req.accessToken);
+
+    const { data, error } = await userSupabase
+      .from("post_reactions")
+      .select("user_id, reaction")
+      .eq("post_id", postId);
+
+    if (error) {
+      console.error("Fetch reactions error:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Unable to fetch reactions",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error("Unexpected reactions error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to fetch reactions",
+    });
+  }
+});
+
+// ADD OR CHANGE YOUR REACTION
+app.put("/api/posts/:id/reactions", requireAuth, async (req, res) => {
+  try {
+    const postId = Number(req.params.id);
+    const { reaction } = req.body;
+
+    const allowedReactions = ["❤️", "😂", "😍", "🔥", "👍", "🎉"];
+
+    if (!Number.isSafeInteger(postId) || postId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid post ID",
+      });
+    }
+
+    if (!allowedReactions.includes(reaction)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid reaction",
+      });
+    }
+
+    const userSupabase = getUserSupabase(req.accessToken);
+
+    const { data: post, error: postError } = await userSupabase
+      .from("posts")
+      .select("id, user_id")
+      .eq("id", postId)
+      .maybeSingle();
+
+    if (postError || !post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found or unavailable",
+      });
+    }
+
+    const { data: existing } = await userSupabase
+      .from("post_reactions")
+      .select("id")
+      .eq("post_id", postId)
+      .eq("user_id", req.user.id)
+      .maybeSingle();
+
+    const { data, error } = await userSupabase
+      .from("post_reactions")
+      .upsert(
+        {
+          post_id: postId,
+          user_id: req.user.id,
+          reaction,
+        },
+        { onConflict: "post_id,user_id" }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Save reaction error:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Unable to save reaction",
+      });
+    }
+
+    if (!existing) {
+      await createNotification({
+        recipientId: post.user_id,
+        actorId: req.user.id,
+        type: "reaction",
+        postId,
+        message: `Someone reacted ${reaction} to your post.`,
+      });
+    }
+
+    return res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error("Unexpected reaction error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to save reaction",
+    });
+  }
+});
+
+// REMOVE YOUR REACTION
+app.delete("/api/posts/:id/reactions", requireAuth, async (req, res) => {
+  try {
+    const postId = Number(req.params.id);
+
+    if (!Number.isSafeInteger(postId) || postId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid post ID",
+      });
+    }
+
+    const userSupabase = getUserSupabase(req.accessToken);
+
+    const { error } = await userSupabase
+      .from("post_reactions")
+      .delete()
+      .eq("post_id", postId)
+      .eq("user_id", req.user.id);
+
+    if (error) {
+      console.error("Remove reaction error:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Unable to remove reaction",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Reaction removed",
+    });
+  } catch (error) {
+    console.error("Unexpected remove reaction error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to remove reaction",
     });
   }
 });

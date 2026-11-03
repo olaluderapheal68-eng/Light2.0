@@ -11,7 +11,158 @@ const charCount = document.querySelector("#charCount");
 const searchInput = document.querySelector("#searchInput");
 
 const API_URL = "https://light2-0.onrender.com";
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_ATTACHMENTS = 4;
 
+const selectedAttachments = [];
+
+async function uploadAttachment(file) {
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`${file.name} is larger than 10 MB.`);
+  }
+
+  const accessToken = await getAccessToken();
+
+  // Ask the backend for a secure upload URL.
+  const urlResponse = await fetch(`${API_URL}/api/attachments/upload-url`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      file_name: file.name,
+      mime_type: file.type,
+    }),
+  });
+
+  const urlResult = await urlResponse.json();
+
+  if (!urlResponse.ok || !urlResult.success) {
+    throw new Error(urlResult.message || "Could not prepare file upload.");
+  }
+
+  const { path, token } = urlResult.data;
+
+  // Upload the file directly to the private Supabase bucket.
+  const { error } = await window.lightSupabase.storage
+    .from("post-attachments")
+    .uploadToSignedUrl(path, token, file, {
+      contentType: file.type,
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return {
+    path,
+    file_name: file.name,
+    mime_type: file.type,
+    file_size: file.size,
+  };
+}
+
+function setupAttachmentPicker() {
+  const imageInput = document.getElementById("imageInput");
+  const fileInput = document.getElementById("fileInput");
+  const preview = document.getElementById("attachmentPreview");
+
+  if (!imageInput || !fileInput || !preview) return;
+
+  function renderAttachmentPreview() {
+    preview.innerHTML = "";
+
+    selectedAttachments.forEach((attachment, index) => {
+      const item = document.createElement("div");
+      item.className = "attachment-preview-item";
+
+      const name = document.createElement("span");
+      name.textContent = attachment.file.name;
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", () => {
+        selectedAttachments.splice(index, 1);
+        renderAttachmentPreview();
+      });
+
+      item.append(name, remove);
+      preview.appendChild(item);
+    });
+  }
+
+  function addFiles(files) {
+    for (const file of files) {
+      if (selectedAttachments.length >= MAX_ATTACHMENTS) {
+        alert("You can attach up to 4 files per post.");
+        break;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name} is larger than 10 MB.`);
+        continue;
+      }
+
+      const alreadyAdded = selectedAttachments.some(
+        item => item.file.name === file.name &&
+                item.file.size === file.size
+      );
+
+      if (!alreadyAdded) {
+        selectedAttachments.push({
+          file,
+          uploaded: null
+        });
+      }
+    }
+
+    renderAttachmentPreview();
+  }
+
+  imageInput.addEventListener("change", () => {
+    addFiles(imageInput.files);
+    imageInput.value = "";
+  });
+
+  fileInput.addEventListener("change", () => {
+    addFiles(fileInput.files);
+    fileInput.value = "";
+  });
+}
+
+setupAttachmentPicker();
+
+// ==========================================
+// EMOJI PICKER
+// ==========================================
+function setupEmojiPicker() {
+  const emojiButton = document.getElementById("emojiButton");
+  const emojiPicker = document.getElementById("emojiPicker");
+
+  if (!emojiButton || !emojiPicker || !postText) return;
+
+  emojiButton.addEventListener("click", () => {
+    emojiPicker.hidden = !emojiPicker.hidden;
+  });
+
+  emojiPicker.querySelectorAll(".emoji-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      const emoji = button.textContent.trim();
+      const start = postText.selectionStart;
+      const end = postText.selectionEnd;
+
+      postText.setRangeText(emoji, start, end, "end");
+      postText.focus();
+      postText.dispatchEvent(new Event("input", { bubbles: true }));
+
+      emojiPicker.hidden = true;
+    });
+  });
+}
+
+setupEmojiPicker();
 
 // ==========================================
 // CHARACTER COUNTER
@@ -299,24 +450,35 @@ if (postForm) {
 
     const text = postText.value.trim();
 
-    if (!text) return;
+    // Allow text-only, attachment-only, or combined posts.
+    if (!text && selectedAttachments.length === 0) {
+      alert("Write something or attach a file before posting.");
+      return;
+    }
 
     try {
       const token = await getAccessToken();
 
-      const response = await fetch(
-        `${API_URL}/api/posts`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            content: text,
-          }),
-        }
-      );
+      // Upload all selected files.
+      const attachments = [];
+
+      for (const item of selectedAttachments) {
+        const uploadedFile = await uploadAttachment(item.file);
+        attachments.push(uploadedFile);
+      }
+
+      // Create the post with its attachment metadata.
+      const response = await fetch(`${API_URL}/api/posts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          content: text,
+          attachments,
+        }),
+      });
 
       const result = await response.json();
 
@@ -326,11 +488,15 @@ if (postForm) {
         );
       }
 
-      // Display the newly created post
+      // Display the newly created post.
       createPost(result.data.content, result.data.id);
 
-      // Reset form
+      // Reset the form and attachment selections.
       postForm.reset();
+      selectedAttachments.length = 0;
+
+      const preview = document.getElementById("attachmentPreview");
+      if (preview) preview.innerHTML = "";
 
       if (charCount) {
         charCount.textContent = "0 / 280";
@@ -346,7 +512,6 @@ if (postForm) {
     }
   });
 }
-
 
 // ==========================================
 // FEED TABS
