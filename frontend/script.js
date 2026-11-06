@@ -13,8 +13,7 @@ const postList = document.querySelector("#postList");
 const charCount = document.querySelector("#charCount");
 const searchInput = document.querySelector("#searchInput");
 
-const API_URL =  "http://localhost:5000";
-
+const API_URL =  "https://light2-0.onrender.com";
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_ATTACHMENTS = 4;
 
