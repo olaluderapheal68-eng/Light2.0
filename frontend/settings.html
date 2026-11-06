@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage your Light account settings.">
+  <title>Settings — Light</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="settings.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js" defer></script>
+  <script src="settings.js" defer></script>
+</head>
+
+<body class="settings-page">
+
+  <header class="topbar">
+    <a class="brand" href="home.html">
+      <span class="brand-mark">L</span>
+      <span>Light</span>
+    </a>
+
+    <a href="home.html" class="back-home">← Back to Home</a>
+  </header>
+
+  <div class="settings-layout">
+
+    <aside class="settings-sidebar">
+      <p class="eyebrow">YOUR ACCOUNT</p>
+      <h2>Settings</h2>
+
+      <nav class="settings-nav">
+        <a href="#account" class="settings-nav-link active">👤 Account</a>
+        <a href="#privacy" class="settings-nav-link">🔒 Privacy</a>
+        <a href="#notifications" class="settings-nav-link">🔔 Notifications</a>
+        <a href="#appearance" class="settings-nav-link">🎨 Appearance</a>
+        <a href="#security" class="settings-nav-link">🛡️ Security</a>
+      </nav>
+    </aside>
+
+    <main class="settings-content">
+
+      <div class="settings-heading">
+        <p class="eyebrow">PERSONALIZE YOUR EXPERIENCE</p>
+        <h1>Settings</h1>
+        <p>Manage your account and customize how Light works for you.</p>
+      </div>
+
+      <div id="settingsMessage" class="settings-message" role="status" aria-live="polite"></div>
+
+<section class="settings-section" id="account">
+  <h2>Account</h2>
+  <p class="section-description">
+    Manage your personal information and public identity on Light.
+  </p>
+
+  <div class="settings-card">
+
+    <label for="firstName">First name</label>
+    <input
+      type="text"
+      id="firstName"
+      placeholder="Enter your first name"
+      maxlength="50"
+    >
+
+    <label for="lastName">Last name</label>
+    <input
+      type="text"
+      id="lastName"
+      placeholder="Enter your last name"
+      maxlength="50"
+    >
+
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      placeholder="Enter your username"
+      maxlength="30"
+    >
+
+    <label for="email">Email address</label>
+    <input
+      type="email"
+      id="email"
+      disabled
+    >
+
+    <button
+      type="button"
+      class="settings-save"
+      id="saveAccount"
+    >
+      Save changes
+    </button>
+
+  </div>
+</section>
+
+
+      <section class="settings-section" id="privacy">
+        <h2>Privacy and Safety</h2>
+        <p class="section-description">Choose how people interact with you.</p>
+
+        <div class="settings-card">
+          <div class="setting-option">
+            <div>
+              <strong>Private account</strong>
+              <p>Only approved followers can see your protected posts.</p>
+            </div>
+            <input type="checkbox" id="privateAccount">
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section" id="notifications">
+        <h2>Notifications</h2>
+        <p class="section-description">Choose which notifications you want to receive.</p>
+
+        <div class="settings-card">
+          <div class="setting-option">
+            <div>
+              <strong>Likes</strong>
+              <p>Get notified when someone likes your posts.</p>
+            </div>
+            <input type="checkbox" id="likeNotifications" checked>
+          </div>
+
+          <div class="setting-option">
+            <div>
+              <strong>Comments and replies</strong>
+              <p>Get notified when someone replies to your posts.</p>
+            </div>
+            <input type="checkbox" id="replyNotifications" checked>
+          </div>
+
+          <div class="setting-option">
+            <div>
+              <strong>New followers</strong>
+              <p>Get notified when someone follows you.</p>
+            </div>
+            <input type="checkbox" id="followNotifications" checked>
+          </div>
+
+          <button type="button" class="settings-save" id="saveNotifications">
+            Save notification preferences
+          </button>
+        </div>
+      </section>
+
+      <section class="settings-section" id="appearance">
+        <h2>Appearance</h2>
+        <p class="section-description">Choose how Light looks on your device.</p>
+
+        <div class="settings-card">
+          <label for="themeSelect">Theme</label>
+          <select id="themeSelect">
+            <option value="light">Light mode</option>
+            <option value="dark">Dark mode</option>
+          </select>
+
+          <button type="button" class="settings-save" id="saveAppearance">
+            Apply theme
+          </button>
+        </div>
+      </section>
+
+      <section class="settings-section" id="security">
+        <h2>Security</h2>
+        <p class="section-description">Manage your account security.</p>
+
+        <div class="settings-card">
+          <strong>Password</strong>
+          <p>Change your account password through Supabase authentication.</p>
+
+          <button type="button" class="settings-secondary" id="changePassword">
+            Change password
+          </button>
+        </div>
+      </section>
+
+      <footer class="settings-footer">
+        Light · Your account, your experience.
+      </footer>
+
+    </main>
+  </div>
+
+</body>
+</html>

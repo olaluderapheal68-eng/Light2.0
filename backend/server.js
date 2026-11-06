@@ -217,6 +217,89 @@ app.post("/api/attachments/upload-url", requireAuth, async (req, res) => {
   }
 });
 
+// Generate a secure viewing URL for a post attachment
+app.post("/api/attachments/signed-read-url", requireAuth, async (req, res) => {
+  try {
+    const { post_id, path } = req.body;
+
+    if (!post_id || !path || typeof path !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Post ID and attachment path are required",
+      });
+    }
+
+    const userSupabase = getUserSupabase(req.accessToken);
+
+    // Fetch the post using the authenticated user's permissions
+    const { data: post, error: postError } = await userSupabase
+      .from("posts")
+      .select("id, user_id, visibility, attachments")
+      .eq("id", post_id)
+      .single();
+
+    if (postError || !post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found or access denied",
+      });
+    }
+
+    // Only allow attachments that actually belong to this post
+    const attachmentExists = Array.isArray(post.attachments) &&
+      post.attachments.some((attachment) => attachment.path === path);
+
+    if (!attachmentExists) {
+      return res.status(403).json({
+        success: false,
+        message: "This attachment does not belong to the post",
+      });
+    }
+
+    // Only public posts or the owner's own posts are accessible for now
+    if (post.visibility !== "public" && post.user_id !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to view this attachment",
+      });
+    }
+
+    // Ensure the attachment belongs to the post owner's storage folder
+    if (!path.startsWith(`${post.user_id}/`)) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid attachment path",
+      });
+    }
+
+    const { data, error } = await supabase.storage
+      .from("post-attachments")
+      .createSignedUrl(path, 300);
+
+    if (error) {
+      console.error("Create signed read URL error:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Unable to prepare attachment",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        signed_url: data.signedUrl,
+        expires_in: 300,
+      },
+    });
+  } catch (error) {
+    console.error("Attachment viewing URL error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to prepare attachment",
+    });
+  }
+});
+
 // POSTS
 
 

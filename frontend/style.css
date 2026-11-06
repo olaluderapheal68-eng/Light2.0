@@ -413,3 +413,301 @@ footer {
   font-weight: 600;
   cursor: pointer;
 }
+
+
+/* Post attachment images */
+.post-attachments {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.post-attachment {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.post-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 600px;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 14px;
+}
+
+.post-file-link {
+  display: inline-block;
+  padding: 12px;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+
+/* X-style sidebar account menu */
+
+.sidebar {
+  position: relative;
+}
+
+.sidebar-account {
+  position: relative;
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.account-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.account-menu-trigger:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.account-avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.account-info strong {
+  font-size: 14px;
+}
+
+.account-info small {
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+.account-more {
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.account-popup {
+  position: absolute;
+  bottom: calc(100% - 10px);
+  left: 0;
+  width: 100%;
+  padding: 8px;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.16);
+  z-index: 1000;
+}
+
+.account-popup a,
+.account-popup button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-popup a:hover,
+.account-popup button:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.account-popup #logoutButton {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.account-popup[hidden] {
+  display: none;
+}
+/* ======================================
+   LIGHT — GLOBAL DARK MODE
+   ====================================== */
+
+body.dark-theme {
+  --bg: #101827;
+  --card: #182335;
+  --card-bg: #182335;
+  --text: #f1f5f9;
+  --border: #334155;
+  --border-color: #334155;
+  --muted: #aab6c8;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Main page backgrounds */
+body.dark-theme,
+body.dark-theme .settings-page {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Header */
+body.dark-theme .topbar {
+  background: rgba(24, 35, 53, 0.96);
+  border-color: var(--border);
+}
+
+body.dark-theme .brand {
+  color: var(--text);
+}
+
+/* Search */
+body.dark-theme .search {
+  background: #263449;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+body.dark-theme .search input {
+  color: var(--text);
+}
+
+body.dark-theme .search input::placeholder {
+  color: var(--muted);
+}
+
+/* Sidebar navigation */
+body.dark-theme .nav-link {
+  color: #cbd5e1;
+}
+
+body.dark-theme .nav-link.active,
+body.dark-theme .nav-link:hover {
+  color: #8ba9ff;
+  background: #263b60;
+}
+
+/* Cards and feeds */
+body.dark-theme .feed,
+body.dark-theme .panel-card,
+body.dark-theme .composer,
+body.dark-theme .settings-card,
+body.dark-theme .settings-sidebar {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Feed headings and post content */
+body.dark-theme .feed-heading,
+body.dark-theme .post {
+  color: var(--text);
+}
+
+body.dark-theme .post {
+  border-color: var(--border);
+}
+
+body.dark-theme .post-body > p {
+  color: #e2e8f0;
+}
+
+/* Composer */
+body.dark-theme .composer textarea {
+  background: transparent;
+  color: var(--text);
+}
+
+body.dark-theme .composer textarea::placeholder {
+  color: var(--muted);
+}
+
+/* Tabs */
+body.dark-theme .tabs {
+  border-color: var(--border);
+}
+
+body.dark-theme .tab {
+  color: var(--muted);
+}
+
+body.dark-theme .tab.active {
+  color: #8ba9ff;
+}
+
+/* Post action buttons */
+body.dark-theme .post-actions button {
+  color: var(--muted);
+}
+
+/* Account menu */
+body.dark-theme .account-menu-trigger {
+  color: var(--text);
+}
+
+body.dark-theme .account-popup {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Authentication pages */
+body.dark-theme .auth-container {
+  background: var(--card);
+  color: var(--text);
+}
+
+body.dark-theme .auth-container input,
+body.dark-theme .auth-container select {
+  background: #263449;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Settings page */
+body.dark-theme .settings-page .settings-heading > p:last-child,
+body.dark-theme .settings-page .section-description,
+body.dark-theme .settings-page .setting-option p,
+body.dark-theme .settings-page .settings-footer {
+  color: var(--muted);
+}
+
+body.dark-theme .settings-page .settings-card input:not([type="checkbox"]),
+body.dark-theme .settings-page .settings-card select {
+  background: #263449;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Footer */
+body.dark-theme footer {
+  color: var(--muted);
+}

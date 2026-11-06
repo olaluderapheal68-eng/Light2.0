@@ -3,18 +3,112 @@
 // LIGHT — MAIN FEED SCRIPT
 // ==========================================
 
-// DOM elements
+// ==========================================
+// DOM ELEMENTS AND CONFIGURATION
+// ==========================================
+
 const postForm = document.querySelector("#postForm");
 const postText = document.querySelector("#postText");
 const postList = document.querySelector("#postList");
 const charCount = document.querySelector("#charCount");
 const searchInput = document.querySelector("#searchInput");
 
-const API_URL = "https://light2-0.onrender.com";
+const API_URL =  "http://localhost:5000";
+
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_ATTACHMENTS = 4;
 
 const selectedAttachments = [];
+
+
+// ==========================================
+// AUTHENTICATION
+// ==========================================
+
+async function getAccessToken() {
+  if (!window.lightSupabase) {
+    throw new Error("Supabase has not been initialized.");
+  }
+
+  const { data, error } =
+    await window.lightSupabase.auth.getSession();
+
+  if (error || !data.session) {
+    window.location.href = "login.html";
+    throw new Error("Please sign in to continue.");
+  }
+
+  return data.session.access_token;
+}
+
+async function getAttachmentUrl(postId, attachmentPath) {
+  const token = await getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/attachments/signed-read-url`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        post_id: postId,
+        path: attachmentPath
+      })
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(
+      result.message || "Unable to load attachment."
+    );
+  }
+
+  return result.data.signed_url;
+}
+
+
+
+// ==========================================
+// SECURE ATTACHMENT VIEWING
+// ==========================================
+
+async function getAttachmentUrl(postId, path) {
+  const token = await getAccessToken();
+
+  const response = await fetch(
+    `${API_URL}/api/attachments/signed-read-url`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        post_id: postId,
+        path: path,
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(
+      result.message || "Could not load attachment."
+    );
+  }
+
+  return result.data.signed_url;
+}
+
+
+// ==========================================
+// UPLOAD ATTACHMENTS
+// ==========================================
 
 async function uploadAttachment(file) {
   if (file.size > MAX_FILE_SIZE) {
@@ -23,28 +117,33 @@ async function uploadAttachment(file) {
 
   const accessToken = await getAccessToken();
 
-  // Ask the backend for a secure upload URL.
-  const urlResponse = await fetch(`${API_URL}/api/attachments/upload-url`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({
-      file_name: file.name,
-      mime_type: file.type,
-    }),
-  });
+  // Request a secure upload URL from the backend.
+  const urlResponse = await fetch(
+    `${API_URL}/api/attachments/upload-url`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        file_name: file.name,
+        mime_type: file.type,
+      }),
+    }
+  );
 
   const urlResult = await urlResponse.json();
 
   if (!urlResponse.ok || !urlResult.success) {
-    throw new Error(urlResult.message || "Could not prepare file upload.");
+    throw new Error(
+      urlResult.message || "Could not prepare file upload."
+    );
   }
 
   const { path, token } = urlResult.data;
 
-  // Upload the file directly to the private Supabase bucket.
+  // Upload directly to the private Supabase Storage bucket.
   const { error } = await window.lightSupabase.storage
     .from("post-attachments")
     .uploadToSignedUrl(path, token, file, {
@@ -56,12 +155,17 @@ async function uploadAttachment(file) {
   }
 
   return {
-    path,
+    path: path,
     file_name: file.name,
     mime_type: file.type,
     file_size: file.size,
   };
 }
+
+
+// ==========================================
+// ATTACHMENT PICKER
+// ==========================================
 
 function setupAttachmentPicker() {
   const imageInput = document.getElementById("imageInput");
@@ -83,6 +187,7 @@ function setupAttachmentPicker() {
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "Remove";
+
       remove.addEventListener("click", () => {
         selectedAttachments.splice(index, 1);
         renderAttachmentPreview();
@@ -106,14 +211,14 @@ function setupAttachmentPicker() {
       }
 
       const alreadyAdded = selectedAttachments.some(
-        item => item.file.name === file.name &&
-                item.file.size === file.size
+        item =>
+          item.file.name === file.name &&
+          item.file.size === file.size
       );
 
       if (!alreadyAdded) {
         selectedAttachments.push({
-          file,
-          uploaded: null
+          file: file,
         });
       }
     }
@@ -134,9 +239,11 @@ function setupAttachmentPicker() {
 
 setupAttachmentPicker();
 
+
 // ==========================================
 // EMOJI PICKER
 // ==========================================
+
 function setupEmojiPicker() {
   const emojiButton = document.getElementById("emojiButton");
   const emojiPicker = document.getElementById("emojiPicker");
@@ -147,15 +254,19 @@ function setupEmojiPicker() {
     emojiPicker.hidden = !emojiPicker.hidden;
   });
 
-  emojiPicker.querySelectorAll(".emoji-option").forEach((button) => {
+  emojiPicker.querySelectorAll(".emoji-option").forEach(button => {
     button.addEventListener("click", () => {
       const emoji = button.textContent.trim();
+
       const start = postText.selectionStart;
       const end = postText.selectionEnd;
 
       postText.setRangeText(emoji, start, end, "end");
       postText.focus();
-      postText.dispatchEvent(new Event("input", { bubbles: true }));
+
+      postText.dispatchEvent(
+        new Event("input", { bubbles: true })
+      );
 
       emojiPicker.hidden = true;
     });
@@ -164,31 +275,86 @@ function setupEmojiPicker() {
 
 setupEmojiPicker();
 
+
 // ==========================================
 // CHARACTER COUNTER
 // ==========================================
 
 if (postText && charCount) {
   postText.addEventListener("input", () => {
-    charCount.textContent = `${postText.value.length} / 280`;
+    charCount.textContent =
+      `${postText.value.length} / 280`;
   });
 }
 
 
 // ==========================================
-// AUTHENTICATION
+// ATTACHMENT DISPLAY
 // ==========================================
 
-async function getAccessToken() {
-  const { data, error } =
-    await window.lightSupabase.auth.getSession();
-
-  if (error || !data.session) {
-    window.location.href = "login.html";
-    throw new Error("Please sign in to continue.");
+function renderPostAttachments(postId, attachments, body) {
+  if (!Array.isArray(attachments) || attachments.length === 0) {
+    return;
   }
 
-  return data.session.access_token;
+  const container = document.createElement("div");
+  container.className = "post-attachments";
+
+  attachments.forEach(attachment => {
+    const item = document.createElement("div");
+    item.className = "post-attachment";
+
+    const loading = document.createElement("p");
+    loading.textContent =
+      `Loading ${attachment.file_name || "attachment"}...`;
+
+    item.appendChild(loading);
+    container.appendChild(item);
+
+    getAttachmentUrl(postId, attachment.path)
+      .then(signedUrl => {
+        item.innerHTML = "";
+
+        if (
+          typeof attachment.mime_type === "string" &&
+          attachment.mime_type.startsWith("image/")
+        ) {
+          const image = document.createElement("img");
+
+          image.src = signedUrl;
+          image.alt = attachment.file_name || "Post image";
+          image.className = "post-image";
+          image.loading = "lazy";
+
+          image.addEventListener("error", () => {
+            image.replaceWith(
+              document.createTextNode("Image could not be displayed.")
+            );
+          });
+
+          item.appendChild(image);
+        } else {
+          const link = document.createElement("a");
+
+          link.href = signedUrl;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.className = "post-file-link";
+          link.textContent =
+            `📎 ${attachment.file_name || "Open attachment"}`;
+
+          item.appendChild(link);
+        }
+      })
+      .catch(error => {
+        console.error("Attachment display failed:", error);
+
+        loading.textContent =
+          `${attachment.file_name || "Attachment"} could not be loaded.`;
+      });
+  });
+
+  body.appendChild(container);
 }
 
 
@@ -196,7 +362,32 @@ async function getAccessToken() {
 // CREATE AND DISPLAY A POST
 // ==========================================
 
-function createPost(text, postId) {
+function createPost(postOrText, legacyPostId) {
+
+  // Support both the old and new calling formats.
+  const post =
+    typeof postOrText === "object" && postOrText !== null
+      ? postOrText
+      : {
+          content: postOrText,
+          id: legacyPostId,
+          attachments: [],
+        };
+
+  const content =
+    typeof post.content === "string" ? post.content : "";
+
+  const postId = post.id;
+
+  const attachments = Array.isArray(post.attachments)
+    ? post.attachments
+    : [];
+
+  if (!postList || !postId) {
+    console.error("Cannot display post:", post);
+    return;
+  }
+
   const article = document.createElement("article");
   article.className = "post";
   article.dataset.postId = postId;
@@ -220,27 +411,33 @@ function createPost(text, postId) {
   const handle = document.createElement("span");
   handle.textContent = "@you";
 
-  // Post content
-  const message = document.createElement("p");
-  message.textContent = text;
+  meta.append(name, handle);
+  body.appendChild(meta);
 
-  // Actions container
+  // Post text
+  if (content) {
+    const message = document.createElement("p");
+    message.textContent = content;
+    body.appendChild(message);
+  }
+
+  // Post attachments
+  renderPostAttachments(postId, attachments, body);
+
+  // Actions
   const actions = document.createElement("div");
   actions.className = "post-actions";
 
-  // Like button
   const likeButton = document.createElement("button");
   likeButton.type = "button";
   likeButton.textContent = "♡ Like (0)";
   likeButton.disabled = true;
   likeButton.setAttribute("aria-pressed", "false");
 
-  // Reply button
   const replyButton = document.createElement("button");
   replyButton.type = "button";
   replyButton.textContent = "◯ Reply";
 
-  // Share button
   const shareButton = document.createElement("button");
   shareButton.type = "button";
   shareButton.textContent = "↗ Share";
@@ -248,14 +445,13 @@ function createPost(text, postId) {
 
   actions.append(likeButton, replyButton, shareButton);
 
-  // ========================================
-  // REPLY — OPEN CONVERSATION PAGE
-  // ========================================
+  body.appendChild(actions);
+  article.append(avatar, body);
 
+  // Reply
   replyButton.addEventListener("click", () => {
     window.location.href = `post.html?id=${postId}`;
   });
-
 
   // ========================================
   // REFRESH LIKE STATUS
@@ -278,7 +474,7 @@ function createPost(text, postId) {
 
       if (!response.ok) {
         throw new Error(
-          result.error || result.message || "Could not load likes"
+          result.message || "Could not load likes."
         );
       }
 
@@ -287,7 +483,7 @@ function createPost(text, postId) {
 
       likeButton.setAttribute(
         "aria-pressed",
-        String(result.likedByMe)
+        String(Boolean(result.likedByMe))
       );
 
       likeButton.disabled = false;
@@ -297,9 +493,8 @@ function createPost(text, postId) {
     }
   }
 
-
   // ========================================
-  // LIKE AND UNLIKE A POST
+  // LIKE AND UNLIKE
   // ========================================
 
   likeButton.addEventListener("click", async () => {
@@ -308,8 +503,12 @@ function createPost(text, postId) {
     const wasLiked =
       likeButton.getAttribute("aria-pressed") === "true";
 
-    const countMatch = likeButton.textContent.match(/\((\d+)\)/);
-    const oldCount = countMatch ? Number(countMatch[1]) : 0;
+    const countMatch =
+      likeButton.textContent.match(/\((\d+)\)/);
+
+    const oldCount = countMatch
+      ? Number(countMatch[1])
+      : 0;
 
     const newLiked = !wasLiked;
 
@@ -318,7 +517,7 @@ function createPost(text, postId) {
       oldCount + (newLiked ? 1 : -1)
     );
 
-    // Update the interface immediately
+    // Update the interface immediately.
     likeButton.textContent =
       `${newLiked ? "♥" : "♡"} Like (${newCount})`;
 
@@ -346,12 +545,14 @@ function createPost(text, postId) {
 
       if (!response.ok) {
         throw new Error(
-          result.error || result.message || "Could not update like"
+          result.message || "Could not update like."
         );
       }
 
     } catch (error) {
-      // Restore the original state
+      console.error("Updating like failed:", error);
+
+      // Restore the original state.
       likeButton.textContent =
         `${wasLiked ? "♥" : "♡"} Like (${oldCount})`;
 
@@ -360,8 +561,6 @@ function createPost(text, postId) {
         String(wasLiked)
       );
 
-      console.error("Updating like failed:", error);
-
       alert("Your like could not be saved. Please try again.");
 
     } finally {
@@ -369,20 +568,10 @@ function createPost(text, postId) {
     }
   });
 
-
-  // ========================================
-  // BUILD THE POST
-  // ========================================
-
-  meta.append(name, handle);
-
-  body.append(meta, message, actions);
-
-  article.append(avatar, body);
-
+  // Display newest post at the top.
   postList.prepend(article);
 
-  // Load the correct like count and status
+  // Load like information.
   refreshLikeButton();
 }
 
@@ -392,6 +581,8 @@ function createPost(text, postId) {
 // ==========================================
 
 async function loadPosts() {
+  if (!postList) return;
+
   try {
     const token = await getAccessToken();
 
@@ -408,7 +599,7 @@ async function loadPosts() {
 
     if (!response.ok) {
       throw new Error(
-        result.error || result.message || "Could not load posts"
+        result.message || "Could not load posts."
       );
     }
 
@@ -416,13 +607,12 @@ async function loadPosts() {
       throw new Error("Invalid posts response from server.");
     }
 
-    // Clear the feed before loading posts
     postList.innerHTML = "";
 
-    // Display oldest first in the loop,
-    // because createPost prepends each post
-    result.data.forEach((post) => {
-      createPost(post.content, post.id);
+    // Backend returns newest first.
+    // Reverse because createPost prepends each post.
+    [...result.data].reverse().forEach(post => {
+      createPost(post);
     });
 
   } catch (error) {
@@ -445,21 +635,30 @@ if (postList) {
 // ==========================================
 
 if (postForm) {
-  postForm.addEventListener("submit", async (event) => {
+  postForm.addEventListener("submit", async event => {
     event.preventDefault();
 
-    const text = postText.value.trim();
+    const text = postText
+      ? postText.value.trim()
+      : "";
 
-    // Allow text-only, attachment-only, or combined posts.
     if (!text && selectedAttachments.length === 0) {
       alert("Write something or attach a file before posting.");
       return;
     }
 
+    const submitButton =
+      postForm.querySelector('button[type="submit"]');
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Posting...";
+    }
+
     try {
       const token = await getAccessToken();
 
-      // Upload all selected files.
+      // Upload selected attachments.
       const attachments = [];
 
       for (const item of selectedAttachments) {
@@ -467,36 +666,44 @@ if (postForm) {
         attachments.push(uploadedFile);
       }
 
-      // Create the post with its attachment metadata.
-      const response = await fetch(`${API_URL}/api/posts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          content: text,
-          attachments,
-        }),
-      });
+      // Create the post.
+      const response = await fetch(
+        `${API_URL}/api/posts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            content: text,
+            attachments: attachments,
+          }),
+        }
+      );
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !result.success) {
         throw new Error(
-          result.error || result.message || "Could not create post"
+          result.message || "Could not create post."
         );
       }
 
-      // Display the newly created post.
-      createPost(result.data.content, result.data.id);
+      // Pass the complete post object.
+      createPost(result.data);
 
-      // Reset the form and attachment selections.
+      // Reset composer.
       postForm.reset();
+
       selectedAttachments.length = 0;
 
-      const preview = document.getElementById("attachmentPreview");
-      if (preview) preview.innerHTML = "";
+      const preview =
+        document.getElementById("attachmentPreview");
+
+      if (preview) {
+        preview.innerHTML = "";
+      }
 
       if (charCount) {
         charCount.textContent = "0 / 280";
@@ -509,17 +716,25 @@ if (postForm) {
         error.message ||
         "Could not publish your post. Please try again."
       );
+
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Post";
+      }
     }
   });
 }
+
 
 // ==========================================
 // FEED TABS
 // ==========================================
 
-document.querySelectorAll("[data-feed]").forEach((tab) => {
+document.querySelectorAll("[data-feed]").forEach(tab => {
   tab.addEventListener("click", () => {
-    document.querySelectorAll("[data-feed]").forEach((item) => {
+
+    document.querySelectorAll("[data-feed]").forEach(item => {
       item.classList.remove("active");
       item.setAttribute("aria-selected", "false");
     });
@@ -556,10 +771,14 @@ if (searchInput && postList) {
   searchInput.addEventListener("input", () => {
     const query = searchInput.value.trim().toLowerCase();
 
-    document.querySelectorAll("#postList .post").forEach((post) => {
+    document.querySelectorAll("#postList .post").forEach(post => {
       post.hidden = !post.textContent
         .toLowerCase()
         .includes(query);
     });
   });
 }
+
+// ==========================================
+// END OF LIGHT MAIN FEED SCRIPT
+// ==========================================

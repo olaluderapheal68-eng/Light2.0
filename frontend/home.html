@@ -15,7 +15,7 @@
 <a href="sign-up.html" data-auth="guest">Create account</a>
 <a href="profile.html" data-auth="user">Profile</a>
 </div>
-</div>
+
   <header class="topbar">
     <a class="brand" href="#" aria-label="Light home">
       <span class="brand-mark">L</span>
@@ -29,18 +29,51 @@
   </header>
 
   <div class="layout">
-    <aside class="sidebar">
-      <p class="section-label">MENU</p>
-      <nav>
-        <a class="nav-link active" href="home.html">⌂ <span>Home</span></a>
-        <a class="nav-link" href="explore.html">⌕ <span>Explore</span></a>
-        <a class="nav-link" href="communities.html">◎ <span>Communities</span></a>
-        <a class="nav-link" href="messages.html">✉ <span>Messages</span></a>
-        <a class="nav-link" href="notifications.html">♧ <span>Notifications</span></a>
-        <a class="nav-link" href="profile.html">♙ <span>Profile</span></a>
-      </nav>
-      <button class="primary-button" id="sidebarPost">Create post</button>
-    </aside>
+
+  <aside class="sidebar">
+    <p class="section-label">MENU</p>
+
+    <nav>
+      <a class="nav-link active" href="home.html">⌂ <span>Home</span></a>
+      <a class="nav-link" href="explore.html">⌕ <span>Explore</span></a>
+      <a class="nav-link" href="communities.html">◎ <span>Communities</span></a>
+      <a class="nav-link" href="messages.html">✉ <span>Messages</span></a>
+      <a class="nav-link" href="notifications.html">♧ <span>Notifications</span></a>
+      <a class="nav-link" href="profile.html">♙ <span>Profile</span></a>
+    </nav>
+
+    <button class="primary-button" id="sidebarPost" type="button">
+      Create post
+    </button>
+
+    <div class="sidebar-account">
+      <button
+        type="button"
+        class="account-menu-trigger"
+        id="accountMenuButton"
+        aria-expanded="false"
+        aria-controls="accountMenu"
+      >
+        <span class="account-avatar">R</span>
+
+        <span class="account-info">
+          <strong>Your account</strong>
+          <small>Manage your account</small>
+        </span>
+
+        <span class="account-more">•••</span>
+      </button>
+
+     <div class="account-popup" id="accountMenu" hidden>
+  <a href="profile.html">View Profile</a>
+  <a href="settings.html">Settings</a>
+
+  <button type="button" id="logoutButton" data-auth="user">
+    ↪ Log out
+  </button>
+</div>
+    </div>
+  </aside>
 
     <main id="home" class="feed">
       <div class="feed-heading">
