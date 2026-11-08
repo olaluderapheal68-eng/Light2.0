@@ -109,14 +109,42 @@ async function getAttachmentUrl(postId, path) {
 // UPLOAD ATTACHMENTS
 // ==========================================
 
+
 async function uploadAttachment(file) {
   if (file.size > MAX_FILE_SIZE) {
     throw new Error(`${file.name} is larger than 10 MB.`);
   }
 
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "application/pdf",
+    "text/plain",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error(`${file.name} has an unsupported file type.`);
+  }
+
+  console.log("Selected attachment:", {
+  name: file.name,
+  type: file.type,
+  size: file.size
+});
+
   const accessToken = await getAccessToken();
 
-  // Request a secure upload URL from the backend.
   const urlResponse = await fetch(
     `${API_URL}/api/attachments/upload-url`,
     {
@@ -142,7 +170,6 @@ async function uploadAttachment(file) {
 
   const { path, token } = urlResult.data;
 
-  // Upload directly to the private Supabase Storage bucket.
   const { error } = await window.lightSupabase.storage
     .from("post-attachments")
     .uploadToSignedUrl(path, token, file, {
@@ -166,8 +193,10 @@ async function uploadAttachment(file) {
 // ATTACHMENT PICKER
 // ==========================================
 
+
 function setupAttachmentPicker() {
   const imageInput = document.getElementById("imageInput");
+  const videoInput = document.getElementById("videoInput");
   const fileInput = document.getElementById("fileInput");
   const preview = document.getElementById("attachmentPreview");
 
@@ -181,7 +210,9 @@ function setupAttachmentPicker() {
       item.className = "attachment-preview-item";
 
       const name = document.createElement("span");
-      name.textContent = attachment.file.name;
+
+      const isVideo = attachment.file.type.startsWith("video/");
+      name.textContent = `${isVideo ? "🎥 " : ""}${attachment.file.name}`;
 
       const remove = document.createElement("button");
       remove.type = "button";
@@ -230,6 +261,13 @@ function setupAttachmentPicker() {
     imageInput.value = "";
   });
 
+  if (videoInput) {
+    videoInput.addEventListener("change", () => {
+      addFiles(videoInput.files);
+      videoInput.value = "";
+    });
+  }
+
   fileInput.addEventListener("change", () => {
     addFiles(fileInput.files);
     fileInput.value = "";
@@ -237,6 +275,7 @@ function setupAttachmentPicker() {
 }
 
 setupAttachmentPicker();
+
 
 
 // ==========================================
@@ -291,6 +330,7 @@ if (postText && charCount) {
 // ATTACHMENT DISPLAY
 // ==========================================
 
+
 function renderPostAttachments(postId, attachments, body) {
   if (!Array.isArray(attachments) || attachments.length === 0) {
     return;
@@ -314,10 +354,10 @@ function renderPostAttachments(postId, attachments, body) {
       .then(signedUrl => {
         item.innerHTML = "";
 
-        if (
-          typeof attachment.mime_type === "string" &&
-          attachment.mime_type.startsWith("image/")
-        ) {
+        const mimeType = attachment.mime_type || "";
+
+        // IMAGE ATTACHMENT
+        if (mimeType.startsWith("image/")) {
           const image = document.createElement("img");
 
           image.src = signedUrl;
@@ -332,7 +372,27 @@ function renderPostAttachments(postId, attachments, body) {
           });
 
           item.appendChild(image);
-        } else {
+        }
+
+        // VIDEO ATTACHMENT
+        else if (mimeType.startsWith("video/")) {
+          const video = document.createElement("video");
+
+          video.src = signedUrl;
+          video.controls = true;
+          video.playsInline = true;
+          video.preload = "metadata";
+          video.className = "post-video";
+
+          video.addEventListener("error", () => {
+            item.textContent = "Video could not be played.";
+          });
+
+          item.appendChild(video);
+        }
+
+        // DOCUMENT ATTACHMENT
+        else {
           const link = document.createElement("a");
 
           link.href = signedUrl;

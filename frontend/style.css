@@ -711,3 +711,14 @@ body.dark-theme .settings-page .settings-card select {
 body.dark-theme footer {
   color: var(--muted);
 }
+/* VIDEO POSTS */
+
+.post-video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 600px;
+  background: #000;
+  border-radius: 14px;
+  object-fit: contain;
+}
