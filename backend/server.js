@@ -540,6 +540,67 @@ app.post("/api/follows/:id/respond", requireAuth, async (req, res) => {
 // FOLLOW AND UNFOLLOW USERS
 // ==========================================
 
+
+// ==========================================
+// GET USER FOLLOWER AND FOLLOWING COUNTS
+// ==========================================
+
+app.get("/api/users/:id/follow-stats", requireAuth, async (req, res) => {
+  try {
+    const profileId = req.params.id;
+
+    // Validate profile ID
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    if (!uuidRegex.test(profileId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid profile ID",
+      });
+    }
+
+    // Count accepted followers
+    const followersQuery = supabase
+      .from("follows")
+      .select("id", { count: "exact", head: true })
+      .eq("following_id", profileId)
+      .eq("status", "accepted");
+
+    // Count accepted following relationships
+    const followingQuery = supabase
+      .from("follows")
+      .select("id", { count: "exact", head: true })
+      .eq("follower_id", profileId)
+      .eq("status", "accepted");
+
+    const [followersResult, followingResult] = await Promise.all([
+      followersQuery,
+      followingQuery,
+    ]);
+
+    if (followersResult.error) throw followersResult.error;
+    if (followingResult.error) throw followingResult.error;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        followers: followersResult.count || 0,
+        following: followingResult.count || 0,
+      },
+    });
+
+  } catch (error) {
+    console.error("Profile follow stats error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load profile statistics",
+    });
+  }
+});
+
+
 // FOLLOW A USER
 app.post("/api/users/:id/follow", requireAuth, async (req, res) => {
   try {
