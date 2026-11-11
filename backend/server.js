@@ -536,6 +536,206 @@ app.post("/api/follows/:id/respond", requireAuth, async (req, res) => {
 });
 
 
+// ==========================================
+// FOLLOW AND UNFOLLOW USERS
+// ==========================================
+
+// FOLLOW A USER
+app.post("/api/users/:id/follow", requireAuth, async (req, res) => {
+  try {
+    const targetId = req.params.id;
+    const followerId = req.user.id;
+
+    // Validate target UUID
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    if (!uuidPattern.test(targetId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      });
+    }
+
+    if (targetId === followerId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot follow yourself"
+      });
+    }
+
+    // Check whether the target profile exists
+    const { data: targetProfile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, is_private")
+      .eq("id", targetId)
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+
+    if (!targetProfile) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Check for an existing follow or request
+    const { data: existingFollow, error: existingError } = await supabase
+      .from("follows")
+      .select("id, status")
+      .eq("follower_id", followerId)
+      .eq("following_id", targetId)
+      .maybeSingle();
+
+    if (existingError) throw existingError;
+
+    if (existingFollow) {
+      return res.status(409).json({
+        success: false,
+        message: existingFollow.status === "pending"
+          ? "Your follow request is already pending"
+          : "You already follow this user",
+        status: existingFollow.status
+      });
+    }
+
+    // Public accounts are followed immediately.
+    // Private accounts receive a pending request.
+    const followStatus = targetProfile.is_private
+      ? "pending"
+      : "accepted";
+
+    const { data: follow, error: followError } = await supabase
+      .from("follows")
+      .insert({
+        follower_id: followerId,
+        following_id: targetId,
+        status: followStatus
+      })
+      .select("id, status")
+      .single();
+
+    if (followError) {
+      if (followError.code === "23505") {
+        return res.status(409).json({
+          success: false,
+          message: "A follow relationship already exists"
+        });
+      }
+
+      throw followError;
+    }
+
+    // Notify the account receiving the follow or request
+    await createNotification({
+      recipientId: targetId,
+      actorId: followerId,
+      type: followStatus === "pending"
+        ? "follow_request"
+        : "follow",
+      message: followStatus === "pending"
+        ? "Someone requested to follow you."
+        : "Someone followed you."
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: followStatus === "pending"
+        ? "Follow request sent successfully"
+        : "You are now following this user",
+      data: follow
+    });
+
+  } catch (error) {
+    console.error("Follow user error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to follow this user"
+    });
+  }
+});
+
+
+// UNFOLLOW A USER OR CANCEL A PENDING REQUEST
+app.delete("/api/users/:id/follow", requireAuth, async (req, res) => {
+  try {
+    const targetId = req.params.id;
+    const followerId = req.user.id;
+
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    if (!uuidPattern.test(targetId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      });
+    }
+
+    if (targetId === followerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid follow operation"
+      });
+    }
+
+    // Find the relationship
+    const { data: existingFollow, error: lookupError } = await supabase
+      .from("follows")
+      .select("id, status")
+      .eq("follower_id", followerId)
+      .eq("following_id", targetId)
+      .maybeSingle();
+
+    if (lookupError) throw lookupError;
+
+    if (!existingFollow) {
+      return res.status(404).json({
+        success: false,
+        message: "Follow relationship not found"
+      });
+    }
+
+    // Delete only the authenticated user's relationship
+    const { error: deleteError } = await supabase
+      .from("follows")
+      .delete()
+      .eq("id", existingFollow.id)
+      .eq("follower_id", followerId);
+
+    if (deleteError) throw deleteError;
+
+    // Cancelling a pending request does not notify the target.
+    // Unfollowing an accepted account does.
+    if (existingFollow.status === "accepted") {
+      await createNotification({
+        recipientId: targetId,
+        actorId: followerId,
+        type: "unfollow",
+        message: "Someone unfollowed you."
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: existingFollow.status === "pending"
+        ? "Follow request cancelled"
+        : "You have unfollowed this user"
+    });
+
+  } catch (error) {
+    console.error("Unfollow user error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to unfollow this user"
+    });
+  }
+});
+
+
 // POST LIKES
 
 
