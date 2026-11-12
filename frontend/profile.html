@@ -56,7 +56,8 @@
             <span id="profileInitial">L</span>
           </div>
 
-          <div class="profile-actions">
+<div class="profile-actions">
+
   <button
     type="button"
     class="edit-profile-button"
@@ -67,14 +68,23 @@
 
   <button
     type="button"
+    class="follow-profile-button"
+    id="followProfileButton"
+    hidden
+  >
+    Follow
+  </button>
+
+  <button
+    type="button"
     class="message-profile-button"
     id="messageProfileButton"
     hidden
   >
     Message
   </button>
-</div>
 
+</div>
           <div class="profile-user-info">
             <h2 id="profileDisplayName">Light User</h2>
             <p id="profileUsername">@lightuser</p>
@@ -144,9 +154,10 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth.js"></script>
-  <script src="auth-guard.js"></script>
-  <script src="profile.js"></script>
+<script src="auth.js"></script>
+<script src="theme.js"></script>
+<script src="auth-guard.js"></script>
+<script src="profile.js"></script>
 
 </body>
 </html>

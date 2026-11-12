@@ -448,3 +448,139 @@ body {
     padding: 21px;
   }
 }
+
+
+/* =========================================
+   LIGHT — COMMUNITIES DARK MODE
+========================================= */
+
+body.dark-theme .app-layout {
+  background: #101827;
+  color: #f1f5f9;
+}
+
+body.dark-theme .sidebar,
+body.dark-theme .communities-main {
+  background: #101827;
+  border-color: #334155;
+}
+
+body.dark-theme .main-navigation a {
+  color: #cbd5e1;
+}
+
+body.dark-theme .main-navigation a:hover,
+body.dark-theme .main-navigation a.active {
+  background: #263b60;
+  color: #8ba9ff;
+}
+
+body.dark-theme .communities-header h1,
+body.dark-theme .community-card h3,
+body.dark-theme .community-sidebar-card h3 {
+  color: #f1f5f9;
+}
+
+body.dark-theme .communities-header p,
+body.dark-theme .community-card p,
+body.dark-theme .community-card small,
+body.dark-theme .community-sidebar-card p {
+  color: #aab6c8;
+}
+
+body.dark-theme .community-search input {
+  background: #263449;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+body.dark-theme .community-search input::placeholder {
+  color: #aab6c8;
+}
+
+body.dark-theme .community-search input:focus {
+  background: #182335;
+}
+
+body.dark-theme .community-tabs,
+body.dark-theme .community-categories {
+  border-color: #334155;
+}
+
+body.dark-theme .community-tab {
+  color: #aab6c8;
+}
+
+body.dark-theme .community-tab:hover {
+  background: #182335;
+}
+
+body.dark-theme .community-tab.active {
+  color: #8ba9ff;
+}
+
+body.dark-theme .category-button {
+  background: #182335;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+body.dark-theme .category-button:hover {
+  background: #263449;
+}
+
+body.dark-theme .category-button.active {
+  background: #315efb;
+  color: #ffffff;
+  border-color: #315efb;
+}
+
+body.dark-theme .community-card {
+  background: #101827;
+  border-color: #334155;
+}
+
+body.dark-theme .community-card:hover {
+  background: #182335;
+}
+
+body.dark-theme .community-card button {
+  background: #263449;
+  color: #f1f5f9;
+}
+
+body.dark-theme .community-card button:hover {
+  background: #334155;
+}
+
+body.dark-theme .community-sidebar-card {
+  background: #182335;
+  color: #f1f5f9;
+}
+
+body.dark-theme .community-modal-content {
+  background: #182335;
+  color: #f1f5f9;
+}
+
+body.dark-theme #closeCommunityModal {
+  background: #263449;
+  color: #f1f5f9;
+}
+
+body.dark-theme #createCommunityForm input,
+body.dark-theme #createCommunityForm textarea,
+body.dark-theme #createCommunityForm select {
+  background: #263449;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+body.dark-theme #createCommunityForm input::placeholder,
+body.dark-theme #createCommunityForm textarea::placeholder {
+  color: #aab6c8;
+}
+
+body.dark-theme #createCommunityForm label {
+  color: #f1f5f9;
+}

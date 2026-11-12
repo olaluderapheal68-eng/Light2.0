@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,18 +11,73 @@
 <body>
   <div class="app-layout">
 
-    <aside class="sidebar">
-      <a href="home.html" class="logo">L</a>
+   <aside class="sidebar">
+  <p class="section-label">MENU</p>
 
-      <nav class="main-nav">
-        <a href="home.html">⌂ <span>Home</span></a>
-        <a href="explore.html" class="active">⌕ <span>Explore</span></a>
-        <a href="notifications.html">♧ <span>Notifications</span></a>
-        <a href="messages.html">✉ <span>Messages</span></a>
-        <a href="communities.html">♧ <span>Communities</span></a>
-        <a href="profile.html">♙ <span>Profile</span></a>
-      </nav>
-    </aside>
+  <nav>
+    <a class="nav-link" href="home.html">
+      <span aria-hidden="true">&#8962;</span>
+      <span>Home</span>
+    </a>
+
+    <a class="nav-link active" href="explore.html">
+      <span aria-hidden="true">&#9906;</span>
+      <span>Explore</span>
+    </a>
+
+    <a class="nav-link" href="communities.html">
+      <span aria-hidden="true">&#9678;</span>
+      <span>Communities</span>
+    </a>
+
+    <a class="nav-link" href="messages.html">
+      <span aria-hidden="true">&#9993;</span>
+      <span>Messages</span>
+    </a>
+
+    <a class="nav-link" href="notifications.html">
+      <span aria-hidden="true">&#9835;</span>
+      <span>Notifications</span>
+    </a>
+
+    <a class="nav-link" href="profile.html">
+      <span aria-hidden="true">&#9825;</span>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <a class="primary-button sidebar-create-post" href="home.html#postForm">
+    Create post
+  </a>
+
+  <div class="sidebar-account">
+    <button
+      type="button"
+      class="account-menu-trigger"
+      id="accountMenuButton"
+      aria-expanded="false"
+      aria-controls="accountMenu"
+    >
+      <span class="account-avatar">R</span>
+
+      <span class="account-info">
+        <strong>Your account</strong>
+        <small>Manage your account</small>
+      </span>
+
+      <span class="account-more">•••</span>
+    </button>
+
+    <div class="account-popup" id="accountMenu" hidden>
+      <a href="profile.html">View Profile</a>
+      <a href="settings.html">Settings</a>
+
+      <button type="button" id="logoutButton" data-auth="user">
+        Log out
+      </button>
+    </div>
+  </div>
+</aside>
 
     <main class="explore-main">
       <header class="explore-header">
@@ -67,6 +122,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
   <script src="auth-guard.js"></script>
+  <script src="navigation-auth.js"></script>
+  <script src="theme.js"></script>
   <script src="explore.js"></script>
 </body>
 </html>
+

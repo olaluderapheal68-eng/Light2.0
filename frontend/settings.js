@@ -243,10 +243,12 @@ function loadAppearanceSettings() {
 }
 
 function applyTheme(theme) {
-  document.body.classList.toggle(
-    "dark-theme",
-    theme === "dark"
-  );
+  if (window.applyLightTheme) {
+    window.applyLightTheme(theme);
+  } else {
+    document.body.classList.toggle("dark-theme", theme === "dark");
+    document.documentElement.classList.toggle("dark-theme", theme === "dark");
+  }
 }
 
 function saveAppearanceSettings() {

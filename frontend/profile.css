@@ -392,50 +392,128 @@
   }
 }
 
-/* DARK THEME */
+/* ========================================
+   LIGHT PROFILE — GLOBAL DARK THEME
+======================================== */
 
-.dark .light-profile-page,
-.dark .profile-main {
-  background: #000000;
-  color: #f7f9fa;
+body.dark-theme.light-profile-page {
+  background: #101827;
+  color: #f1f5f9;
 }
 
-.dark .profile-sidebar,
-.dark .profile-main,
-.dark .profile-topbar,
-.dark .profile-tabs {
-  border-color: #2f3336;
+body.dark-theme .profile-sidebar,
+body.dark-theme .profile-main {
+  background: #101827;
+  border-color: #334155;
 }
 
-.dark .profile-sidebar nav a,
-.dark .profile-topbar > a,
-.dark .profile-tabs button,
-.dark .profile-stats strong {
-  color: #f7f9fa;
+body.dark-theme .profile-sidebar nav a,
+body.dark-theme .profile-topbar > a,
+body.dark-theme .profile-topbar h2,
+body.dark-theme .profile-user-info h2,
+body.dark-theme .profile-bio,
+body.dark-theme .account-details summary {
+  color: #f1f5f9;
 }
 
-.dark .profile-topbar,
-.dark .profile-tabs button,
-.dark .edit-profile-button {
-  background: #000000;
+body.dark-theme .profile-topbar {
+  background: rgba(24, 35, 53, 0.96);
+  border-color: #334155;
 }
 
-.dark .profile-trends {
-  background: #16181c;
+body.dark-theme .profile-topbar span,
+body.dark-theme .profile-user-info p,
+body.dark-theme .profile-extra-info,
+body.dark-theme .profile-stats a,
+body.dark-theme .profile-message,
+body.dark-theme .account-details p,
+body.dark-theme .profile-post-card small {
+  color: #aab6c8;
 }
 
-.dark .profile-post-card:hover,
-.dark .profile-sidebar nav a:hover {
-  background: #16181c;
+body.dark-theme .profile-identity,
+body.dark-theme .profile-posts,
+body.dark-theme .account-details {
+  background: #101827;
 }
 
-.dark .profile-avatar {
-  border-color: #000000;
+body.dark-theme .profile-avatar {
+  border-color: #101827;
 }
 
-.dark .profile-stats a,
-.dark .profile-user-info p,
-.dark .profile-extra-info,
-.dark .profile-trends p {
-  color: #8b98a5;
+body.dark-theme .edit-profile-button {
+  background: #182335;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+body.dark-theme .edit-profile-button:hover {
+  background: #263449;
+}
+
+body.dark-theme .profile-tabs {
+  background: #182335;
+  border-color: #334155;
+}
+
+body.dark-theme .profile-tabs button {
+  background: #182335;
+  color: #aab6c8;
+}
+
+body.dark-theme .profile-tabs button:hover {
+  background: #263449;
+}
+
+body.dark-theme .profile-tabs button.active {
+  color: #8ba9ff;
+}
+
+body.dark-theme .profile-post-card {
+  background: #182335;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+
+body.dark-theme .profile-post-card:hover {
+  background: #263449;
+}
+
+body.dark-theme .account-details {
+  border-color: #334155;
+}
+
+body.dark-theme .profile-search input {
+  background: #263449;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+}
+
+body.dark-theme .profile-search input::placeholder {
+  color: #aab6c8;
+}
+
+body.dark-theme .profile-trends {
+  background: #182335;
+  color: #f1f5f9;
+}
+
+body.dark-theme .profile-trends p {
+  color: #aab6c8;
+}
+
+body.dark-theme .profile-sidebar nav a:hover {
+  background: #263449;
+}
+
+body.dark-theme .profile-sidebar nav a.active {
+  color: #8ba9ff;
+}
+
+body.dark-theme .profile-main,
+body.dark-theme .profile-topbar,
+body.dark-theme .profile-tabs,
+body.dark-theme .profile-post-card,
+body.dark-theme .account-details {
+  border-color: #334155;
 }
